@@ -1,0 +1,99 @@
+@page
+@model UserInvitationModel
+@{
+    ViewData["Title"] = "Invitations";
+}
+@if (Model.ShowGlobalAdminUserInvitation)
+{
+    <h4>Sign-up as Global Admin</h4>
+    <p class="lead">
+        There aren't any users yet, you can <a asp-area="AzureADB2C" asp-controller="Account" asp-action="SignIn">sign up</a>
+        as the initial global admin with the following invitation code:
+    </p>
+    <div class="alert alert-secondary">
+        <div><code>@Model.GlobalAdminInvitationCode</code></div>
+    </div>
+}
+else if (!Model.CanManageUserInvitations)
+{
+    <div class="alert alert-warning">You don't have permissions to invite users.</div>
+}
+else
+{
+    <h4>Invite New User</h4>
+    <form method="POST">
+        <div class="form-group">
+            <label class="font-weight-bolder" for="delegatedUserManagementRoleGlobalAdmin">Role</label>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="delegatedUserManagementRole" id="delegatedUserManagementRoleCompanyUser" value="@Constants.DelegatedUserManagementRoles.CompanyUser" checked>
+                <label class="form-check-label" for="delegatedUserManagementRoleCompanyUser">
+                    @Constants.DelegatedUserManagementRoles.CompanyUser <small class="text-muted">&mdash; can sign in but cannot manage users</small>
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="delegatedUserManagementRole" id="delegatedUserManagementRoleCompanyAdmin" value="@Constants.DelegatedUserManagementRoles.CompanyAdmin">
+                <label class="form-check-label" for="delegatedUserManagementRoleCompanyAdmin">
+                    @Constants.DelegatedUserManagementRoles.CompanyAdmin <small class="text-muted">&mdash; can manage users for their own company</small>
+                </label>
+            </div>
+            @if (Model.CanSelectGlobalAdmins)
+            {
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="delegatedUserManagementRole" id="delegatedUserManagementRoleGlobalAdmin" value="@Constants.DelegatedUserManagementRoles.GlobalAdmin">
+                <label class="form-check-label" for="delegatedUserManagementRoleGlobalAdmin">
+                    @Constants.DelegatedUserManagementRoles.GlobalAdmin <small class="text-muted">&mdash; can manage all users for all companies</small>
+                </label>
+            </div>
+            }
+        </div>
+        @if (Model.CanSelectCompany)
+        {
+        <div class="form-group">
+            <label class="font-weight-bolder" for="companyId">Company</label>
+            <input type="text" class="form-control" id="companyId" name="companyId" placeholder="Enter the company identifier that this user belongs to, or leave blank for a global user">
+        </div>
+        }
+        <div class="form-group">
+            <label class="font-weight-bolder" for="validHours">Validity Period (Hours)</label>
+            <input type="text" class="form-control" id="validHours" name="validHours" placeholder="Enter the number of hours this invitation should be valid" value="24">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    <h4 class="mt-4">Pending User Invitations</h4>
+    @if (!Model.PendingUserInvitations.Any())
+    {
+    <div class="alert alert-secondary">There are no pending user invitations.</div>
+    }
+    else
+    {
+    <table class="table table-striped table-sm table-responsive">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Company</th>
+                <th>Role</th>
+                <th>Invitation Code</th>
+                <th>Expires (UTC)</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var userInvitation in Model.PendingUserInvitations)
+        {
+            <tr>
+                <td>
+                    <form method="POST" asp-page-handler="DeleteUserInvitation">
+                        <input type="hidden" name="invitationCode" value="@userInvitation.InvitationCode">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+                <td>@userInvitation.CompanyId</td>
+                <td>@userInvitation.DelegatedUserManagementRole</td>
+                <td>@userInvitation.InvitationCode</td>
+                <td>@userInvitation.ExpiresTime.ToString("G")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    }
+}

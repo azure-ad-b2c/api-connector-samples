@@ -1,0 +1,68 @@
+@page
+@model UserModel
+@{
+    ViewData["Title"] = "Users";
+}
+@if (!Model.CanManageUsers)
+{
+    <div class="alert alert-warning">You don't have permissions to manage users.</div>
+}
+else
+{
+    <h4 class="mt-4">Manage Users</h4>
+    <div class="text-muted">
+        Note that making any changes to user information will write them immediately to the directory
+        through the Graph API; but to see the new values reflected in the token (and as a consequence
+        in the application), the user will have to sign out and back in.
+    </div>
+    <table class="table table-striped table-sm table-responsive mt-3">
+        <thead>
+            <tr>
+                <th></th>
+                @if (Model.CanSelectCompany)
+                {
+                <th>Company</th>
+                }
+                <th>Role</th>
+                <th>Name</th>
+                <th>Invitation Code</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var user in Model.Users)
+        {
+            <tr>
+                <td>
+                    <form method="POST" id="form-user-@user.Id">
+                        <input type="hidden" name="id" value="@user.Id">
+                        <button type="submit" asp-page-handler="UpdateUser" class="btn btn-primary">Update</button>
+                        <button type="submit" asp-page-handler="DeleteUser" class="btn btn-danger" disabled="@(user.Id == this.User.FindFirst(Constants.ClaimTypes.ObjectId)?.Value)">Delete</button>
+                    </form>
+                </td>
+                @if (Model.CanSelectCompany)
+                {
+                <td>
+                    <input type="text" class="form-control" name="companyId" form="form-user-@user.Id" value="@user.CompanyId">
+                </td>
+                }
+                <td>
+                    <select class="form-control" name="delegatedUserManagementRole" form="form-user-@user.Id">
+                        <option selected="@(user.DelegatedUserManagementRole == Constants.DelegatedUserManagementRoles.CompanyUser)">@Constants.DelegatedUserManagementRoles.CompanyUser</option>
+                        <option selected="@(user.DelegatedUserManagementRole == Constants.DelegatedUserManagementRoles.CompanyAdmin)">@Constants.DelegatedUserManagementRoles.CompanyAdmin</option>
+                        @if (Model.CanSelectGlobalAdmins)
+                        {
+                        <option selected="@(user.DelegatedUserManagementRole == Constants.DelegatedUserManagementRoles.GlobalAdmin)">@Constants.DelegatedUserManagementRoles.GlobalAdmin</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <input type="text" class="form-control" name="name" form="form-user-@user.Id" value="@user.Name">
+                </td>
+                <td>
+                    <div class="form-control-plaintext">@user.InvitationCode</div>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

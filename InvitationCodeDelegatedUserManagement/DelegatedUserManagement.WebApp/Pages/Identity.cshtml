@@ -1,0 +1,23 @@
+@page
+@model IdentityModel
+@{
+    ViewData["Title"] = "Identity";
+}
+<h4>Claims</h4>
+<table class="table table-bordered table-striped table-responsive">
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var claim in this.User.Claims)
+            {
+            <tr>
+                <td>@claim.Type</td>
+                <td>@claim.Value</td>
+            </tr>
+            }
+    </tbody>
+</table>
