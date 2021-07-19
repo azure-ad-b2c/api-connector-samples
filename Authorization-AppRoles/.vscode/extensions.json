@@ -1,0 +1,6 @@
+{
+    "recommendations": [
+        "azureadb2ctools.aadb2c",
+        "ms-vscode.azure-account"
+    ]
+}

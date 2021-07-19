@@ -1,0 +1,56 @@
+@page
+@model IdentityModel
+@inject AppRolesOptions AppRolesOptions
+@{
+    ViewData["Title"] = "Identity";
+}
+<h4>App Roles</h4>
+<div>
+    These are all the app roles you have for this application (based on the <code>@AppRolesOptions.UserAttributeName</code> claims).
+</div>
+<div class="alert alert-primary mt-2">
+    Note that the <code>@AppRolesOptions.UserAttributeName</code> claim can occur multiple times even though Azure AD B2C emits
+    app roles as a single (space-separated) value; this is because the application splits it into multiple claim values to make
+    it easier to consume the app roles.
+</div>
+<ul>
+    @foreach (var claim in this.User.Claims.Where(c => c.Type == AppRolesOptions.UserAttributeName))
+    {
+        <li><code>@claim.Value</code></li>
+    }
+</ul>
+
+<h4 class="mt-3">App Role Check</h4>
+<form method="POST">
+    <div class="mb-3">
+        <label for="roleName" class="form-label">Role Name</label>
+        <input type="text" class="form-control" id="roleName" name="roleName">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+@if (!string.IsNullOrWhiteSpace(Model.CheckRoleResult))
+{
+    <div class="alert alert-secondary mt-3">
+        @Model.CheckRoleResult
+    </div>
+}
+
+<h4 class="mt-3">Claims</h4>
+<div>This is the full list of claims you have.</div>
+<table class="table table-bordered table-striped table-responsive mt-2">
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var claim in this.User.Claims)
+        {
+            <tr>
+                <td>@claim.Type</td>
+                <td>@claim.Value</td>
+            </tr>
+        }
+    </tbody>
+</table>

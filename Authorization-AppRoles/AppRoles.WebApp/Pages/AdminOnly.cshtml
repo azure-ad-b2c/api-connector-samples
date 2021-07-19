@@ -1,0 +1,9 @@
+@page
+@model AdminOnlyModel
+@{
+    ViewData["Title"] = "Admin Page";
+}
+<h1>@ViewBag.Title</h1>
+<p class="lead">
+    If you can see this page, then you have the <code>@AdminOnlyModel.AdminRoleName</code> role.
+</p>
