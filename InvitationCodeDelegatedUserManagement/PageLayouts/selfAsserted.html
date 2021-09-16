@@ -114,6 +114,14 @@
         /* endinject */
     </style>
 
+    <style>
+        /* Hide the elements that contain user attributes which the user should not see, as
+        they will be populated afterwards with information from the user invitation anyway. */
+        .extension_CompanyId_li, .extension_DelegatedUserManagementRole_li {
+          display: none;
+        }
+    </style>
+
 </head>
 <body>
     <div id="background_branding_container" data-tenant-branding-background-color="true">
@@ -134,12 +142,4 @@
         </div>
     </div>
 </body>
-<script type="text/javascript">
-  $(document).ready(function() {
-    // Hide the elements that contain user attributes which the user should not see, as
-    // they will be populated afterwards with information from the user invitation anyway.
-    $("#extension_CompanyId").parents("li").hide();
-    $("#extension_DelegatedUserManagementRole").parents("li").hide();
-  });
-</script>
 </html>
