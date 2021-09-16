@@ -78,12 +78,12 @@ When the sample app is running and the API Connector is configured, you can brow
 
 As explained above, user attributes that need to be persisted during user creation must currently also be selected in the **User attributes** list (even if they are ultimately populated through the API connector).
 
-For these fields which the user should not see, you can use custom page content with a small JavaScript snippet that selects the right HTML elements and then hides them.
+For these fields which the user should not see, you can use custom page content with a small CSS snippet that selects the right HTML elements and then hides them.
 
 Note that this will not allow users to bypass security and provide their own values: even if they *un-hide* the right fields, the API connector will be called *after* the user has filled in their details, and the information coming back from the API connector will overwrite whatever the user had entered manually.
 
 To improve the user experience by hiding the necessary fields:
 
-- Ensure to follow the steps to [customize the user interface](https://docs.microsoft.com/azure/active-directory-b2c/customize-ui-overview), including the additional [configuration to allow JavaScript](https://docs.microsoft.com/azure/active-directory-b2c/user-flow-javascript-overview).
-- Host the [selfAsserted.html](PageLayouts/selfAsserted.html) file (which is based on the *Ocean Blue* template in this case) in a publicly accessible location, e.g. in [Azure Blob Storage](https://docs.microsoft.com/azure/storage/blobs/storage-blobs-introduction) by following the steps in the [custom page content walkthrough](https://docs.microsoft.com/azure/active-directory-b2c/custom-policy-ui-customization#custom-page-content-walkthrough). Note the small JavaScript snippet at the end of that HTML file which finds the right extension user attribute elements and then hides their parent list elements.
+- Ensure to follow the steps to [customize the user interface](https://docs.microsoft.com/azure/active-directory-b2c/customize-ui-overview).
+- Host the [selfAsserted.html](PageLayouts/selfAsserted.html) file (which is based on the *Ocean Blue* template in this case) in a publicly accessible location, e.g. in [Azure Blob Storage](https://docs.microsoft.com/azure/storage/blobs/storage-blobs-introduction) by following the steps in the [custom page content walkthrough](https://docs.microsoft.com/azure/active-directory-b2c/custom-policy-ui-customization#custom-page-content-walkthrough). Note the small CSS `<style>` snippet at the end of the HTML `<head>` element which hides the right user attribute list elements based on their CSS class names (e.g. `extension_CompanyId_li`).
 - In the **Page layouts** configuration of the **Sign up and sign in** flow, update the **Local account sign up page** with the **Custom page URI** of the hosted page.
