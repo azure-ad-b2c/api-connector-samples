@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/AppRoles.WebApp/bin/Debug/netcoreapp3.1/AppRoles.WebApp.dll",
+            "program": "${workspaceFolder}/AppRoles.WebApp/bin/Debug/net7.0/AppRoles.WebApp.dll",
             "args": [],
             "cwd": "${workspaceFolder}/AppRoles.WebApp",
             "console": "integratedTerminal",

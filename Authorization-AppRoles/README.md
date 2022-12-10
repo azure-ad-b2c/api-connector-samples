@@ -130,10 +130,10 @@ There are a few options to run the sample app (containing both the REST API and 
 
 - You can build and run it locally.
   - You can open the root folder of this repo in [Visual Studio Code](https://code.visualstudio.com/) where you can just build and debug (install the recommended extensions in the workspace if you don't have them).
-  - In this case, application settings are configured in the `AppRoles.WebApp/appsettings.json` file or by using [.NET User Secrets](https://docs.microsoft.com/aspnet/core/security/app-secrets?view=aspnetcore-3.1&tabs=windows).
+  - In this case, application settings are configured in the `AppRoles.WebApp/appsettings.json` file or by using [.NET User Secrets](https://docs.microsoft.com/aspnet/core/security/app-secrets).
 - You can build and run it in a [devcontainer](https://code.visualstudio.com/docs/remote/containers) (including [GitHub Codespaces](https://github.com/features/codespaces)).
   - All pre-requisites such as .NET Core are provided in the devcontainer so you don't need to install anything locally.
-  - In this case, application settings are configured in the `AppRoles.WebApp/appsettings.json` file or by using [.NET User Secrets](https://docs.microsoft.com/aspnet/core/security/app-secrets?view=aspnetcore-3.1&tabs=windows).
+  - In this case, application settings are configured in the `AppRoles.WebApp/appsettings.json` file or by using [.NET User Secrets](https://docs.microsoft.com/aspnet/core/security/app-secrets).
 - You can host a pre-built Docker container which contains the sample app.
   - You can find the latest published version of the Docker container publicly on **Docker Hub** at **[jelledruyts/identitysamplesb2c-approles](https://hub.docker.com/r/jelledruyts/identitysamplesb2c-approles)**
   - In this case, application settings are configured through environment variables. Note that on Linux a colon (`:`) is not allowed in an environment variable, so use a double underscore instead of `:` in that case (e.g. `AzureAdB2C__ClientId`).

@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/DelegatedUserManagement.WebApp/bin/Debug/netcoreapp3.1/DelegatedUserManagement.WebApp.dll",
+            "program": "${workspaceFolder}/DelegatedUserManagement.WebApp/bin/Debug/net7.0/DelegatedUserManagement.WebApp.dll",
             "args": [],
             "cwd": "${workspaceFolder}/DelegatedUserManagement.WebApp",
             "stopAtEntry": false,

@@ -1,29 +1,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure.Identity;
 using Microsoft.Graph;
-using Microsoft.Graph.Auth;
-using Microsoft.Identity.Client;
 
 namespace DelegatedUserManagement.WebApp
 {
     public class B2cGraphService
     {
-        private readonly IGraphServiceClient graphClient;
+        private readonly GraphServiceClient graphClient;
         private readonly string b2cExtensionPrefix;
 
         public B2cGraphService(string clientId, string domain, string clientSecret, string b2cExtensionsAppClientId)
         {
-            // Set up a confidential client application which refers back to the "regular" Azure AD endpoints
+            // Create the Graph client using an app which refers back to the "regular" Azure AD endpoints
             // of the B2C directory, i.e. not "tenant.b2clogin.com" but "login.microsoftonline.com/tenant".
-            var confidentialClientApplication = ConfidentialClientApplicationBuilder
-                .Create(clientId)
-                .WithTenantId(domain)
-                .WithClientSecret(clientSecret)
-                .Build();
-
             // This can then be used to perform Graph API calls using the B2C client application's identity and client credentials.
-            this.graphClient = new GraphServiceClient(new ClientCredentialProvider(confidentialClientApplication));
+            var clientSecretCredential = new ClientSecretCredential(domain, clientId, clientSecret);
+            this.graphClient = new GraphServiceClient(clientSecretCredential);
 
             this.b2cExtensionPrefix = b2cExtensionsAppClientId.Replace("-", "");
         }

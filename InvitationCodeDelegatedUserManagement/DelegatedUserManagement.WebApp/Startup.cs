@@ -33,6 +33,7 @@ namespace DelegatedUserManagement.WebApp
             services.AddSingleton<IUserInvitationRepository>(new FileStorageUserInvitationRepository(userInvitationsBasePath));
 
             // Inject a service to work with Azure AD B2C through the Graph API.
+#pragma warning disable 0618 // AzureADB2CDefaults is obsolete in favor of "Microsoft.Identity.Web"
             var b2cConfigurationSection = Configuration.GetSection("AzureAdB2C");
             var b2cGraphService = new B2cGraphService(
                 clientId: b2cConfigurationSection.GetValue<string>(nameof(AzureADB2COptions.ClientId)),
@@ -60,6 +61,7 @@ namespace DelegatedUserManagement.WebApp
                 // Set the "role" claim type to be the "extension_DelegatedUserManagementRole" user attribute.
                 options.TokenValidationParameters.RoleClaimType = b2cGraphService.GetUserAttributeClaimName(Constants.UserAttributes.DelegatedUserManagementRole);
             });
+#pragma warning restore 0618
 
             services.AddRazorPages();
             services.AddControllers();

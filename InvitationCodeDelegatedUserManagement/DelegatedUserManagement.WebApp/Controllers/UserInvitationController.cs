@@ -62,7 +62,7 @@ namespace DelegatedUserManagement.WebApp.Controllers
                         this.logger.LogWarning($"User invitation for invitation code \"{invitationCode}\" was not found.");
                         return GetValidationErrorApiResponse("UserInvitationRedemptionFailed-NotFound", "The invitation code you provided is invalid.");
                     }
-                    else if (userInvitation.ExpiresTime == null || userInvitation.ExpiresTime < DateTimeOffset.UtcNow)
+                    else if (userInvitation.ExpiresTime < DateTimeOffset.UtcNow)
                     {
                         // The requested invitation code has expired.
                         this.logger.LogWarning($"User invitation for invitation code \"{invitationCode}\" has expired on {userInvitation.ExpiresTime.ToString("o")}.");

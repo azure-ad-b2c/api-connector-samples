@@ -13,7 +13,7 @@ namespace AppRoles.WebApp
         {
             services.Configure<CookiePolicyOptions>(options =>
             {
-                options.MinimumSameSitePolicy = (SameSiteMode)(-1); // SameSiteMode.Unspecified was only added to .NET Core 3.1.
+                options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
                 options.OnAppendCookie = cookieContext => CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
                 options.OnDeleteCookie = cookieContext => CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
             });
@@ -32,7 +32,7 @@ namespace AppRoles.WebApp
                 var userAgent = httpContext.Request.Headers[Microsoft.Net.Http.Headers.HeaderNames.UserAgent].ToString();
                 if (DisallowsSameSiteNone(userAgent))
                 {
-                    options.SameSite = (SameSiteMode)(-1); // SameSiteMode.Unspecified was only added to .NET Core 3.1.
+                    options.SameSite = SameSiteMode.Unspecified;
                 }
             }
         }

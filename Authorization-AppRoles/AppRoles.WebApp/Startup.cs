@@ -40,6 +40,7 @@ namespace AppRoles.WebApp
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
             // Add Azure AD B2C authentication using OpenID Connect.
+#pragma warning disable 0618 // AzureADB2CDefaults is obsolete in favor of "Microsoft.Identity.Web"
             services.AddAuthentication(AzureADB2CDefaults.AuthenticationScheme)
                 .AddAzureADB2C(options => Configuration.Bind("AzureAdB2C", options));
 
@@ -51,6 +52,7 @@ namespace AppRoles.WebApp
                 // Define the role claim type to match the configured user attribute name in Azure AD B2C.
                 options.TokenValidationParameters.RoleClaimType = appRolesOptions.UserAttributeName;
             });
+#pragma warning restore 0618
 
             // Add a claims transformation to split the space-separated app roles into multiple individual claims,
             // so that we can more easily check if a user has a role with User.IsInRole(roleName) and other built-in

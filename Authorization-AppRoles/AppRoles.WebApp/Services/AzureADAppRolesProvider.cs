@@ -2,32 +2,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
-using Microsoft.Graph.Auth;
-using Microsoft.Identity.Client;
 
 namespace AppRoles.WebApp.Services
 {
     public class AzureADAppRolesProvider : IAppRolesProvider
     {
         private readonly ILogger<AzureADAppRolesProvider> logger;
-        private readonly IGraphServiceClient graphClient;
+        private readonly GraphServiceClient graphClient;
 
         public AzureADAppRolesProvider(ILogger<AzureADAppRolesProvider> logger, IOptions<AzureADAppRolesProviderOptions> options)
         {
             this.logger = logger;
-            // Set up a confidential client application which refers back to the "regular" Azure AD endpoints
+            // Create the Graph client using an app which refers back to the "regular" Azure AD endpoints
             // of the B2C directory, i.e. not "tenant.b2clogin.com" but "login.microsoftonline.com/tenant".
             // This can then be used to perform Graph API calls using the specified client application's identity
             // and client credentials.
-            var confidentialClientApplication = ConfidentialClientApplicationBuilder
-                .Create(options.Value.AzureADAppRolesProviderClientId)
-                .WithTenantId(options.Value.Domain)
-                .WithClientSecret(options.Value.AzureADAppRolesProviderClientSecret)
-                .Build();
-            this.graphClient = new GraphServiceClient(new ClientCredentialProvider(confidentialClientApplication));
+            var clientSecretCredential = new ClientSecretCredential(options.Value.Domain, options.Value.AzureADAppRolesProviderClientId, options.Value.AzureADAppRolesProviderClientSecret);
+            this.graphClient = new GraphServiceClient(clientSecretCredential);
         }
 
         public async Task<ICollection<string>> GetAppRolesAsync(string userId, string appId)

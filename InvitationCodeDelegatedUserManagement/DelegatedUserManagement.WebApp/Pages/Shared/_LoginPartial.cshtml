@@ -1,16 +1,10 @@
-@using Microsoft.AspNetCore.Authentication.AzureADB2C.UI
-@using Microsoft.Extensions.Options
-@inject IOptionsMonitor<AzureADB2COptions> AzureADB2COptions
-
-@{
-    var options = AzureADB2COptions.Get(AzureADB2CDefaults.AuthenticationScheme);
-}
-
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
 
 <ul class="navbar-nav">
 @if (User.Identity.IsAuthenticated)
 {
-        @if (!string.IsNullOrEmpty(options.EditProfilePolicyId))
+        @if (!string.IsNullOrEmpty(Configuration["AzureAdB2C:EditProfilePolicyId"]))
         {
             <li class="nav-item">
                 <a class="nav-link text-dark" asp-area="AzureADB2C" asp-controller="Account" asp-action="EditProfile">
