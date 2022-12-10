@@ -17,6 +17,7 @@ Azure AD B2C is typically focused on _authentication_ of users (i.e. allowing us
    - In this case, you do have to create some user management application that populates the user attributes in Azure AD B2C using the Microsoft Graph API.
    - You also have to take care to never allow these user attributes to be modified by the end users themselves (e.g. through a profile editing user flow), otherwise a user could simply modify their own permissions.
    - You should consider prefixing the user attributes with the app name to avoid conflicts, e.g. `App1_AppRoles` and `App2_AppRoles`; this makes the role claim types app-specific and a bit less "clean" (i.e. every app will have to configure and look up its own role claim type rather than being able to standardize on a single claim type).
+   - Also note that custom user attributes today do not allow _collections_, so if there are multiple roles you must return them in a single string value (e.g. by separating multiple entries with spaces). There's also a [string limit of 250 characters for a single custom user attribute](https://docs.microsoft.com/azure/active-directory-b2c/service-limits#azure-ad-b2c-configuration-limits) so this wouldn't work well if you need a _lot_ of different roles.
 3. Create [custom policies](https://docs.microsoft.com/azure/active-directory-b2c/custom-policy-overview) in Azure AD B2C to [invoke a custom REST API](https://docs.microsoft.com/azure/active-directory-b2c/restful-technical-profile) and return authorization claims.
    - See this [Role-Based Access Control custom policy sample](https://github.com/azure-ad-b2c/samples/tree/master/policies/relying-party-rbac) which looks up the user's group memberships inside the Azure AD B2C directory and returns them in `groups` claims.
    - As the core authorization logic happens within the REST API, you can easily change this to use another authorization source (see below) and another claim type (e.g. `roles`).
@@ -24,14 +25,14 @@ Azure AD B2C is typically focused on _authentication_ of users (i.e. allowing us
    - This has the advantage that the core authorization logic is still externalized into a REST API, but you can now achieve the same result without having to use custom policies.
    - In this case, the claim type which holds the authorization claims will be a [custom user attribute](https://docs.microsoft.com/azure/active-directory-b2c/user-flow-custom-attributes?pivots=b2c-user-flow) (similar to option 2), however its claim value will be determined at runtime by the API Connector. This means you can define a single user attribute that is then used by all applications (e.g. always use `AppRoles` instead of `App1_AppRoles` and `App2_AppRoles` etc.).
    - Note that you cannot fully control the claim type that is emitted into the token for custom user attributes: it is always prefixed with `extension_`, e.g. the claim type that the application sees for a user attribute called `AppRoles` would be `extension_AppRoles` (in contrast with custom policies where you have full control over the exact claim type, so you could simply call it `roles` for example).
-   - Also note that custom user attributes today do not allow *collections*, so if there are multiple roles you must return them in a single string value (e.g. by separating multiple entries with spaces). There's also a [string limit of 250 characters for a single custom user attribute](https://docs.microsoft.com/azure/active-directory-b2c/service-limits#azure-ad-b2c-configuration-limits) so this wouldn't work well if you need a *lot* of different roles.
+   - Also note that as mentioned above, custom user attributes today do not allow _collections_, so if there are multiple roles you must return them in a single string value (e.g. by separating multiple entries with spaces). The [string limit of 250 characters for a single custom user attribute](https://docs.microsoft.com/azure/active-directory-b2c/service-limits#azure-ad-b2c-configuration-limits) doesn't apply here: the roles don't actually get _stored_ in Azure AD B2C since the API Connector will determine them at runtime.
 
 For the last two options which use a custom REST API for the core authorization logic, you can define where the user's roles are stored. Also in this case there are a few common options:
 
 1. Use [Azure AD groups](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal) inside the Azure AD B2C tenant.
    - In this case, you create regular Azure AD groups inside the Azure AD B2C tenant, and add your users to those groups.
    - The REST API will then use the Microsoft Graph API to perform a call to Azure AD B2C to look up the user's group membership in the directory.
-   - Note however that groups are a global concept in the directory and are not specific to a single application; use of groups for app-specific authorization is therefore typically not recommended: the group claims would be the same for *all* applications.
+   - Note however that groups are a global concept in the directory and are not specific to a single application; use of groups for app-specific authorization is therefore typically not recommended: the group claims would be the same for _all_ applications.
    - The [Role-Based Access Control custom policy sample](https://github.com/azure-ad-b2c/samples/tree/master/policies/relying-party-rbac) uses this approach to look up a user's group membership and return that as `groups` claims which can then be used for authorization purposes in the application.
 2. Use [Azure AD App Roles](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps) inside the Azure AD B2C tenant.
    - In this case, you declare App Roles on the app registrations in the Azure AD B2C tenant, and assign the right users (or even groups) to those roles.
@@ -39,9 +40,9 @@ For the last two options which use a custom REST API for the core authorization 
    - Since the App Roles are specific to an app registration, the returned authorization claims are specific to the app the user is signing in to.
 3. Use your own database or some other storage repository to map users to roles for certain applications.
    - With this approach you fully externalize the authorization information outside of Azure AD B2C; this can be a benefit as you have full control of how you store that information, but it comes at the expense of introducing another dependency in the solution that you have to maintain, monitor, make highly available, etc.
-   - Another benefit of this approach is that you don't put extra load on the Azure AD B2C tenant itself, which could be relevant if you have *many* users and your REST API may run into the [throttling limits of the Microsoft Graph API](https://docs.microsoft.com/graph/throttling) when looking up the user's groups or App Roles; this would typically be solved by caching relevant information in the REST API.
+   - Another benefit of this approach is that you don't put extra load on the Azure AD B2C tenant itself, which could be relevant if you have _many_ users and your REST API may run into the [throttling limits of the Microsoft Graph API](https://docs.microsoft.com/graph/throttling) when looking up the user's groups or App Roles; this would typically be solved by caching relevant information in the REST API.
 
-**The focus for this sample is the use of *user flows with API Connectors* (option 4) where the mapping of users to roles for specific applications is done using *App Roles within the Azure AD B2C directory* (option 2).**
+**The focus for this sample is the use of _user flows with API Connectors_ (option 4) where the mapping of users to roles for specific applications is done using _App Roles within the Azure AD B2C directory_ (option 2).**
 
 In summary, in this sample we will perform the following:
 
@@ -120,9 +121,9 @@ The ASP.NET Core based application in this sample serves two purposes:
   - Follow the documentation to [create a custom attribute](https://docs.microsoft.com/azure/active-directory-b2c/user-flow-custom-attributes?pivots=b2c-user-flow#create-a-custom-attribute) called `AppRoles` and set the data type to `String`.
   - Note: if you want to use a different custom attribute name, update the `AppRoles:UserAttributeName` setting in the application configuration with your specific claim name (including the `extension_` prefix).
 - **Create user flows** for **Sign up and sign in** (and optionally **Password reset** and **Profile editing**):
-  - For all these flows, use the *recommended* version which gives you access to the API Connectors feature.
+  - For all these flows, use the _recommended_ version which gives you access to the API Connectors feature.
   - Ensure to return at least `AppRoles`, `Display Name` and `User's Object ID` as the **Application claims**.
-  - On a **Profile editing** flow, ensure *not* to select `AppRoles` in the **User attributes**; however even if a user would be able to change their app role user attribute stored statically in the directory, its value would still get overwritten by the REST API at runtime - so even in this case there is no risk of elevation of privilege.
+  - On a **Profile editing** flow, ensure _not_ to select `AppRoles` in the **User attributes**; however even if a user would be able to change their app role user attribute stored statically in the directory, its value would still get overwritten by the REST API at runtime - so even in this case there is no risk of elevation of privilege.
 
 ### Configure and run the sample app
 
@@ -154,4 +155,4 @@ There are a few options to run the sample app (containing both the REST API and 
 
 When the sample app is running and the API Connector is configured, you can now try the **Sign up and sign in** user flow (or any other user flow configured with the same API Connector) and you should see the `extension_AppRoles` claim come in holding the user's assigned App Roles on the application they've signed in to.
 
-If you use the test web application, you can sign in and see the claims as well as the App Roles on the *Identity* page. You should also be able to access the *Admin Only* page if you have the `Admin` role (and should see an error if you don't).
+If you use the test web application, you can sign in and see the claims as well as the App Roles on the _Identity_ page. You should also be able to access the _Admin Only_ page if you have the `Admin` role (and should see an error if you don't).
